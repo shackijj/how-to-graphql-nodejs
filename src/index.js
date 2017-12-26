@@ -6,6 +6,7 @@ const schema = require('./schema');
 const connectMongo = require('./mongo-connector');
 const {authentificate} = require('./authentification');
 const buildDataloaders = require('./dataloaders');
+const formatError = require('./formatError');
 
 const start = async () => {
     const app = express();
@@ -21,6 +22,7 @@ const start = async () => {
                 user,
             },
             schema,
+            formatError
         };
     };
 
