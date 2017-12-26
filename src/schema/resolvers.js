@@ -55,6 +55,7 @@ module.exports = {
             };
 
             const response = await Votes.insert(newVote);
+            pubsub.publish('Vote', {Vote: {mutation: 'CREATED', node: newVote}});
             return Object.assign({id: response.insertedIds[0]}, newVote);
         },
     },
@@ -81,6 +82,13 @@ module.exports = {
         votes: async ({_id}, data, {mongo: {Votes}}) => {
             return await Votes.find({linkId: _id}).toArray();
         },
-        subscribe: () => pubsub.asyncIterator('Link'),
+    },
+    Subscription: {
+        Link: {
+            subscribe: () => pubsub.asyncIterator('Link')
+        },
+        Vote: {
+            subscribe: () => pubsub.asyncIterator('Vote')
+        }
     }
 };
