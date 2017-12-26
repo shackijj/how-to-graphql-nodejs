@@ -1,5 +1,6 @@
 const {ObjectID} = require('mongodb');
 const {URL} = require('url');
+const pubsub = require('../pubsub');
 
 class ValidationError extends Error {
     constructor(message, field) {
@@ -29,6 +30,7 @@ module.exports = {
             assertValidLink(data);
             const newLink = Object.assign({postedById: user && user._id}, data);
             const response = await Links.insert(newLink);
+            pubsub.publish('Link', {Link: {mutation: 'CREATED', node: newLink}});
             return Object.assign({id: response.insertedIds[0]}, newLink);
         },
         createUser: async (root, data, {mongo: {Users}}) => {
@@ -79,5 +81,6 @@ module.exports = {
         votes: async ({_id}, data, {mongo: {Votes}}) => {
             return await Votes.find({linkId: _id}).toArray();
         },
+        subscribe: () => pubsub.asyncIterator('Link'),
     }
 };
