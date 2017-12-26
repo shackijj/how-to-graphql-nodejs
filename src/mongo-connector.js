@@ -1,4 +1,4 @@
-const {MongoClient} = require('mongodb');
+const {MongoClient, Logger} = require('mongodb');
 
 const MONGO_URL = 'mongodb://localhost:27017';
 const dbName = 'hackernews';
@@ -6,8 +6,16 @@ const dbName = 'hackernews';
 module.exports = async () => {
     const client = await MongoClient.connect(MONGO_URL);
     const db = client.db(dbName);
+
+    let logCount = 0;
+    Logger.setCurrentLogger((msg, state) => {
+        console.log(`MONGO DB REQUEST ${++logCount}: ${msg}`);
+    });
+    Logger.setLevel('debug');
+    Logger.filter('class', ['Cursor']);
     return {
         Links: db.collection('links'),
         Users: db.collection('users'),
+        Votes: db.collection('votes'),
     };
 }
